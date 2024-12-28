@@ -19,10 +19,10 @@ services:
     container_name: jangcar_backend
     build:
       dockerfile: Dockerfile
-      context: .
+      context: backend
       target: development
     volumes:
-      - .:/usr/src/app
+      - ./backend:/usr/src/app
     command: npm run start:dev
     env_file:
       - .env
