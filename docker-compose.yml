@@ -12,22 +12,43 @@ services:
       - "443:443"
     depends_on:
       - jangcar_backend
+      - jangcar_frontend
+      - jangcar_minio
+    networks:
+      - jangcar_network
+
+  jangcar_frontend:
+    container_name: jangcar_frontend
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/usr/src/frontend
+    env_file:
+      - .env
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - jangcar_backend
+      - jangcar_minio
     networks:
       - jangcar_network
   
   jangcar_backend:
     container_name: jangcar_backend
     build:
-      dockerfile: Dockerfile
       context: backend
+      dockerfile: Dockerfile
       target: development
     volumes:
-      - ./backend:/usr/src/app
+      - ./backend:/usr/src/backend
     command: npm run start:dev
     env_file:
       - .env
     ports:
-      - ${BACKEND_PORT}:${BACKEND_PORT}
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     depends_on:
       - jangcar_postgres
       - jangcar_redis
@@ -42,7 +63,7 @@ services:
     env_file:
       - .env
     ports:
-      - ${POSTGRES_EXTERNAL_PORT}:${POSTGRES_PORT}
+      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_PORT}"
     networks:
       - jangcar_network
 
@@ -52,7 +73,7 @@ services:
     env_file:
       - .env
     ports:
-      - ${REDIS_EXTERNAL_PORT}:${REDIS_PORT}
+      - "${REDIS_EXTERNAL_PORT}:${REDIS_PORT}"
     networks:
       - jangcar_network
 
